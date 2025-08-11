@@ -1,15 +1,17 @@
 import { useState } from "react";
 import Navbar from "./Navbar.jsx";
-
+import { useNavigate } from 'react-router-dom';
 const SignUp = () => {
+const navigate= useNavigate();
+
 
 const [userObj, setUserObj] = useState({
   username: "",
   email: "",
   password:""  
 });
-
-
+const [showModal, setShowModal] = useState(false);
+const [error, setError] = useState("");
 const handleChange = (e) => {
   
     setUserObj({
@@ -22,7 +24,7 @@ const handleChange = (e) => {
 const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const url="http://localhost:8080/signup";
+    const url="http://localhost:3000/auth/signup";
 
     const response = await fetch(url, {
       method: "POST",
@@ -35,11 +37,10 @@ const handleSubmit = async (e) => {
     const responseObj = await response.json();
 
     if(!responseObj.success) {
-      alert("Sign Up Failed: " + responseObj.message);
-      return;
-    }
+      setShowModal(false);  
+      setError(responseObj.message);}
 
-    alert("Sign Up Successful!");
+    else{setShowModal(true);}
     
 }
   return (
@@ -47,6 +48,25 @@ const handleSubmit = async (e) => {
 
     <>
     <Navbar />
+    {showModal && (
+  <dialog className="modal modal-open">
+    <div className="modal-box">
+      <h3 className="font-bold text-lg">You have signed up successfully!</h3>
+      
+      <div className="modal-action">
+        <button className="btn btn-primary" onClick={() =>{ setShowModal(false); navigate('/login') }}>Close</button>
+      </div>
+    </div>
+  </dialog>
+)}
+    {error && (
+  <div className="alert alert-error shadow-amber-700 mt-4 mb-4 flex justify-between items-center w-full ">
+    
+      <span className="text-white text-lg">{error}</span>
+      <button className="btn btn-soft btn-square float-end" onClick={() => setError("")}>✕</button>
+    
+  </div>
+)}
     <form
   onSubmit={handleSubmit}
   className="max-w-md mx-auto p-10 rounded-lg shadow-2xl space-y-4 "
